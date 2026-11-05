@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Database Normalization Interactive Lab | 1NF → 4NF & BCNF</title>
+  
+  <!-- Fonts matching sandbox-1: Inter, JetBrains Mono, Oswald -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Oswald:wght@600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- ====================================================================
+         TOP HEADER BAR (Theme aligned with sandbox-1)
+         ==================================================================== -->
+    <header class="top-header">
+      
+      <!-- Left: Toggle Sidebar, Site Title, Breadcrumb -->
+      <div class="header-left">
+        <button id="toggle-sidebar-btn" class="toggle-sidebar-btn" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <div class="title-group">
+          <h1 class="site-title">
+            <svg class="db-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+              <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path>
+            </svg>
+            <span id="site-title-text">Database Normalization Lab</span>
+          </h1>
+          <div id="topic-breadcrumb-text" class="topic-breadcrumb">Case 1: University Schema • Step 1NF</div>
+        </div>
+      </div>
+
+      <!-- Center: Learning Progress Widget (14 Segments matching sandbox-1 & image 2) -->
+      <div class="header-center">
+        <div class="progress-widget" id="progress-widget" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-top-row">
+            <span id="progress-label" class="progress-label">LEARNING PROGRESS</span>
+            <span id="progress-percentage" class="progress-percentage">0%</span>
+          </div>
+          <div id="progress-segments-track" class="progress-segments-track">
+            <!-- 14 segmented capsules generated dynamically -->
+            <div class="progress-segment in-progress"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+          </div>
+          <div id="progress-bottom-text" class="progress-bottom-row">
+            0 / 14 COMPLETE · 1 IN PROGRESS
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Language Dropdown & Theme Switcher (Matching sandbox-1 & image 3) -->
+      <div class="header-right">
+        <!-- Bilingual Language Selector Dropdown -->
+        <div class="lang-selector-wrapper">
+          <select id="lang-select" class="lang-select" aria-label="Select Language">
+            <option value="en">English (EN)</option>
+            <option value="vi">Tiếng Việt (VI)</option>
+          </select>
+          <svg class="lang-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+
+        <!-- Light / Dark Mode Toggle Switch (Exact sandbox-1 style) -->
+        <div class="theme-switch-container">
+          <button id="theme-switch-btn" class="theme-switch-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Light/Dark Theme">
+            <div class="theme-segment sun-segment">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2"></path>
+                <path d="M12 20v2"></path>
+                <path d="m4.93 4.93 1.41 1.41"></path>
+                <path d="m17.66 17.66 1.41 1.41"></path>
+                <path d="M2 12h2"></path>
+                <path d="M20 12h2"></path>
+                <path d="m6.34 17.66-1.41 1.41"></path>
+                <path d="m19.07 4.93-1.41 1.41"></path>
+              </svg>
+            </div>
+            <div class="theme-segment moon-segment">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+              </svg>
+            </div>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         WORKSPACE LAYOUT (Sidebar + Main Window)
+         ==================================================================== -->
+    <div class="workspace-wrapper">
+      
+      <!-- LEFT SIDEBAR: Continuous Schema Cases & 1NF → BCNF → 4NF Steps -->
+      <aside class="sidebar" id="app-sidebar">
+        <div class="sidebar-header">
+          <span class="sidebar-title" id="sidebar-heading">NORMALIZATION SCHEMAS</span>
+          <button class="reset-btn" id="sidebar-reset-all" title="Reset all progress">Reset All</button>
+        </div>
+
+        <nav class="sidebar-content" id="cases-nav">
+          <!-- Case 1 Card (Continuous University Schema) -->
+          <div class="topic-group open" data-case="1" id="case-card-1">
+            <button class="topic-header-btn" aria-expanded="true">
+              <div class="topic-title-area">
+                <span class="topic-symbol-badge">01</span>
+                <div class="case-info">
+                  <span class="topic-name-text" id="case1-title">Case 1: University Schema</span>
+                  <span class="case-desc" id="case1-desc">Continuous Academic Schema (1NF → 4NF)</span>
+                </div>
+              </div>
+              <svg class="topic-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+            <div class="case-list" id="steps-list-1">
+              <button class="case-item-btn active" data-step="1nf">
+                <div class="case-title-left">
+                  <span class="case-status-icon in-progress"></span>
+                  <span class="case-name-text" id="case1-step1-label">1NF: Atomicity & Contacts</span>
+                </div>
+                <span class="case-badge">1NF</span>
+              </button>
+              <button class="case-item-btn" data-step="2nf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case1-step2-label">2NF: Partial Dependencies (Grades)</span>
+                </div>
+                <span class="case-badge">2NF</span>
+              </button>
+              <button class="case-item-btn" data-step="3nf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case1-step3-label">3NF: Transitive Deps (Departments)</span>
+                </div>
+                <span class="case-badge">3NF</span>
+              </button>
+              <button class="case-item-btn" data-step="bcnf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case1-step4-label">BCNF: Boyce-Codd (Advisors)</span>
+                </div>
+                <span class="case-badge">BCNF</span>
+              </button>
+              <button class="case-item-btn" data-step="4nf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case1-step5-label">4NF: Multi-Valued Deps (Faculty)</span>
+                </div>
+                <span class="case-badge">4NF</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Case 2 Card (Dual-Table Continuous Healthcare Schema) -->
+          <div class="topic-group" data-case="2" id="case-card-2">
+            <button class="topic-header-btn" aria-expanded="false">
+              <div class="topic-title-area">
+                <span class="topic-symbol-badge">02</span>
+                <div class="case-info">
+                  <span class="topic-name-text" id="case2-title">Case 2: Healthcare Schema</span>
+                  <span class="case-desc" id="case2-desc">2 tables normalized at each step</span>
+                </div>
+              </div>
+              <svg class="topic-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+            <div class="case-list" id="steps-list-2">
+              <button class="case-item-btn" data-step="1nf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case2-step1-label">1NF: Patients & Staff Contacts</span>
+                </div>
+                <span class="case-badge">1NF</span>
+              </button>
+              <button class="case-item-btn" data-step="2nf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case2-step2-label">2NF: RxDetails & LabTests</span>
+                </div>
+                <span class="case-badge">2NF</span>
+              </button>
+              <button class="case-item-btn" data-step="3nf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case2-step3-label">3NF: Clinics & DoctorDepts</span>
+                </div>
+                <span class="case-badge">3NF</span>
+              </button>
+              <button class="case-item-btn" data-step="bcnf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case2-step4-label">BCNF: Shifts & SurgeryUnits</span>
+                </div>
+                <span class="case-badge">BCNF</span>
+              </button>
+              <button class="case-item-btn" data-step="4nf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case2-step5-label">4NF: DoctorSkills & WardEquipment</span>
+                </div>
+                <span class="case-badge">4NF</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Case 3 Card (Progressive Waterfall Pipeline) -->
+          <div class="topic-group" data-case="3" id="case-card-3">
+            <button class="topic-header-btn" aria-expanded="false">
+              <div class="topic-title-area">
+                <span class="topic-symbol-badge">03</span>
+                <div class="case-info">
+                  <span class="topic-name-text" id="case3-title">Case 3: Progressive Pipeline</span>
+                  <span class="case-desc" id="case3-desc">Step-by-step split from previous table</span>
+                </div>
+              </div>
+              <svg class="topic-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+            <div class="case-list" id="steps-list-3">
+              <button class="case-item-btn" data-step="1nf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case3-step1-label">1NF: Split MegaRegistry</span>
+                </div>
+                <span class="case-badge">1NF</span>
+              </button>
+              <button class="case-item-btn" data-step="2nf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case3-step2-label">2NF: Split StudentCourses</span>
+                </div>
+                <span class="case-badge">2NF</span>
+              </button>
+              <button class="case-item-btn" data-step="3nf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case3-step3-label">3NF: Split CourseInstructors</span>
+                </div>
+                <span class="case-badge">3NF</span>
+              </button>
+              <button class="case-item-btn" data-step="bcnf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case3-step4-label">BCNF: Split AdvisorCourse</span>
+                </div>
+                <span class="case-badge">BCNF</span>
+              </button>
+              <button class="case-item-btn" data-step="4nf">
+                <div class="case-title-left">
+                  <span class="case-status-icon"></span>
+                  <span class="case-name-text" id="case3-step5-label">4NF: Split InstructorDuties</span>
+                </div>
+                <span class="case-badge">4NF</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Sidebar Legend & Guide -->
+        <div class="sidebar-footer-card">
+          <div class="help-card-header">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 16v-4M12 8h.01"></path>
+            </svg>
+            <span id="sidebar-legend-title">Visual Indicators</span>
+          </div>
+          <ul class="legend-list">
+            <li><span class="legend-dot green"></span> <span id="legend-green-text">Green Border: Normalized OK</span></li>
+            <li><span class="legend-dot yellow"></span> <span id="legend-yellow-text">Yellow Border: Needs Normalization</span></li>
+            <li><span class="legend-dot blue"></span> <span id="legend-blue-text">Blue Col: Multi-valued attribute (1NF)</span></li>
+            <li><span class="legend-dot red-sq"></span> <span id="legend-red-text">Red Box: Non-atomic multi-value</span></li>
+            <li><span class="legend-dot green-sq"></span> <span id="legend-green-box-text">Green Box: Fixed atomic value</span></li>
+            <li><span class="legend-key">*</span> <span id="legend-key-text">Asterisk (*): Composite Primary Key</span></li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT STAGE -->
+      <main class="main-workspace">
+        
+        <!-- STAGE TOP CONTROL BAR -->
+        <section class="panel-card operation-card">
+          <div class="operation-header-row">
+            <div class="case-headline">
+              <div class="stage-breadcrumbs">
+                <span class="case-category-tag" id="current-case-badge">Case 1: University Schema</span>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-step" id="current-step-badge">1NF Step</span>
+                <div class="status-pill in-progress" id="stage-status-pill">
+                  <span class="pill-dot"></span>
+                  <span id="stage-status-text">Needs Normalization</span>
+                </div>
+              </div>
+              <h2 class="case-main-title" id="dynamic-stage-title">Step 1NF: First Normal Form (Eliminating Repeating Groups)</h2>
+              <p class="case-subheading" id="dynamic-stage-subtitle">The schema contains continuous tables. Expand tables to diagnose issues; click to normalize.</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="stage-actions">
+              <button class="btn-action-primary" id="btn-auto-normalize" title="Normalize pending tables">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                </svg>
+                <span id="btn-normalize-text">Normalize Table(s)</span>
+              </button>
+              <button class="btn-action-secondary" id="btn-reset-step" title="Reset this normalization step">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                  <path d="M3 3v5h5"></path>
+                </svg>
+                <span id="btn-reset-text">Reset Step</span>
+              </button>
+              <button class="btn-action-next" id="btn-next-step" disabled title="Go to the next normalization step">
+                <span id="btn-next-text">Next Step</span>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- WORKSPACE TABS BAR (Tables View vs SQL Schema DDL View) -->
+          <div class="workspace-tabs-bar">
+            <button class="tab-btn active" id="tab-tables-btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+              </svg>
+              <span id="tab-tables-label">Interactive Tables</span>
+            </button>
+            <button class="tab-btn" id="tab-sql-btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              <span id="tab-sql-label">Resulting SQL Schema (DDL)</span>
+              <span class="tab-badge" id="sql-tables-count">5 Tables</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- VIEW 1: INTERACTIVE TABLES CONTAINER -->
+        <section class="tables-view-container" id="tables-view-panel">
+          <div class="tables-stage" id="tables-container">
+            <!-- Dynamic Table Cards injected here -->
+          </div>
+        </section>
+
+        <!-- VIEW 2: RESULTING SQL SCHEMA (DDL) CONTAINER -->
+        <section class="sql-view-container" id="sql-view-panel" style="display: none;">
+          <div class="sql-panel-card">
+            <div class="sql-panel-header">
+              <div class="sql-info-group">
+                <span class="sql-badge" id="sql-schema-name-badge">University Academic Schema</span>
+                <span class="sql-syntax-indicator" id="sql-syntax-mode-text">Standard SQL (EN)</span>
+              </div>
+              <button class="btn-copy-sql" id="btn-copy-sql" title="Copy SQL to Clipboard">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span id="copy-sql-text">Copy SQL</span>
+              </button>
+            </div>
+            <div class="sql-code-wrapper">
+              <pre class="sql-code-block"><code id="sql-code-display" class="language-sql">-- Generating schema DDL...</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- LOWER DOCK: RELATIONSHIP GRAPH (LOWER LEFT) & EXPLANATION CARD (LOWER RIGHT) -->
+        <section class="dock-container">
+          <!-- LOWER LEFT: 2NF RELATIONSHIP GRAPH (Matching Image 1) -->
+          <div class="dock-panel left-panel" id="relationship-graph-panel" style="display: none;">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-badge">2NF Dependency Analysis</span>
+                <h4 id="graph-panel-title">Column Functional Dependency Graph</h4>
+              </div>
+              <button class="panel-close-btn" id="close-graph-btn" aria-label="Dismiss graph">×</button>
+            </div>
+            <div class="panel-body">
+              <div class="graph-canvas-wrapper" id="dependency-graph-canvas">
+                <!-- SVG diagram injected dynamically -->
+              </div>
+              <div class="graph-legend" id="graph-legend-caption">
+                Orange = partial dependency; green = full dependency
+              </div>
+            </div>
+          </div>
+
+          <!-- LOWER RIGHT: DIAGNOSTIC NOTICE & FDs CARD -->
+          <div class="dock-panel right-panel" id="explanation-card-panel">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="status-indicator-badge warning" id="expl-badge">DIAGNOSTIC NOTICE</span>
+                <h4 id="expl-title">Hover over any table to view diagnostic</h4>
+              </div>
+            </div>
+            <div class="panel-body">
+              <p class="expl-description" id="expl-desc">Move your cursor over any table to inspect its normalization compliance, functional dependencies, and required decomposition steps.</p>
+              <div class="fd-box" id="expl-fd-container" style="display: none;">
+                <span class="fd-label" id="expl-fd-label">Functional Dependencies:</span>
+                <code class="fd-code" id="expl-fd-code">StudentID, CourseID → Grade</code>
+              </div>
+
+              <!-- Real-World Problem Solved Section (Requirement 4) -->
+              <div class="anomaly-box" id="expl-anomaly-container" style="display: none;">
+                <div class="anomaly-header">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M12 2L2 19h20L12 2zm1 14h-2v-2h2v2zm0-4h-2V8h2v4z"/>
+                  </svg>
+                  <span class="anomaly-title" id="expl-anomaly-label">Real-World Problem Solved (Anomalies Prevented):</span>
+                </div>
+                <p class="anomaly-text" id="expl-anomaly-text"></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
